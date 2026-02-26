@@ -1,0 +1,31 @@
+{
+  "name": "visor-dental-cad",
+  "version": "1.0.0",
+  "description": "Software profesional de visualización dental",
+  "main": "electron-main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron ."
+  },
+  "author": "Tu Nombre",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.182.0",
+    "three-mesh-bvh": "^0.9.8"
+  },
+  "devDependencies": {
+    "electron": "^40.6.1",
+    "vite": "^7.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SrDelicias/visor-stl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SrDelicias/visor-stl/issues"
+  },
+  "homepage": "https://github.com/SrDelicias/visor-stl#readme"
+}

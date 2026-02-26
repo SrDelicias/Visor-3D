@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visor Dental CAD</title>
+    <script type="module" crossorigin src="./assets/index-DmP1m975.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DKTrm1Qy.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="wrap">
+        <header class="topbar">
+          <div class="left">
+            <button id="btnLoad" class="iconBtn primary" title="Cargar Modelos (STL, OBJ, PLY)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Importar STL/OBJ</span>
+            </button>
+            <input id="fileInput" type="file" accept=".stl,.obj,.ply" multiple hidden />
+
+            <div class="divider"></div>
+
+            <button id="btnInterference" class="iconBtn" title="Detectar colisiones entre modelos">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Interferencias</span>
+            </button>
+            
+            <div id="interferencePanel" class="interferencePanel" style="display: none;">
+              <select id="severityFilter" class="severityFilter">
+                <option value="all">🔍 Todas las colisiones</option>
+                <option value="critical">🔴 Graves (>1mm)</option>
+                <option value="moderate">🟠 Moderadas (0.5-1mm)</option>
+                <option value="light">🟢 Leves (<0.5mm)</option>
+              </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <button id="btnAlign" class="iconBtn" title="Alinear modelos por 3 puntos">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span>Alinear</span>
+            </button>
+
+            <button id="btnShare" class="iconBtn" title="Compartir escena mediante enlace">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              <span>Compartir</span>
+            </button>
+
+            <button id="btnScreenshot" class="iconBtn" title="Guardar captura de pantalla (PNG)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Captura</span>
+            </button>
+          </div>
+          
+          <div class="right">
+            <span class="pill" id="count">0 modelos cargados</span>
+            <button id="btnTheme" class="iconBtn small" title="Cambiar tema (Claro/Oscuro)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+          </div>
+        </header>
+    
+        <div id="shareModal" class="modal">
+          <div class="modalContent">
+            <div class="modalHeader">
+              <h3>🔗 Compartir modelos</h3>
+              <button class="modalClose" id="closeModal">✕</button>
+            </div>
+            <div class="modalBody">
+              <p class="modalDesc">Genera un link para compartir los modelos actuales.</p>
+              <div class="shareStatus" id="shareStatus">
+                <div class="loader"></div>
+                <span>Generando link...</span>
+              </div>
+              <div class="shareResult" id="shareResult" style="display: none;">
+                <label class="shareLabel">Link generado:</label>
+                <div class="linkBox">
+                  <input type="text" readonly id="shareLink" class="shareLinkInput" />
+                  <button class="btnCopy" id="btnCopyLink">📋 Copiar</button>
+                </div>
+                <div class="shareInfo" id="shareInfo">
+                  <span class="shareInfoItem">📦 0 modelo(s)</span>
+                  <span class="shareInfoItem">⏰ Válido por 7 días</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="main">
+          <aside class="panel">
+            <div class="panelHeader">
+              <div class="panelTitle">Estructuras 3D</div>
+              <div class="panelSub" id="panelSub">Arrastra archivos al visor para listarlos aquí.</div>
+            </div>
+            <div id="modelsList" class="modelsList"></div>
+          </aside>
+    
+          <div id="viewer" class="viewer">
+            <div id="drop" class="drop">Suelta aquí tus archivos (STL, OBJ, PLY)</div>
+            
+            <div id="alignPanel" style="display: none; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: var(--bg-panel); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; text-align: center;">
+              <h3 style="margin: 0 0 8px 0; font-size: 15px; color: var(--text-main);">📌 Alineación por Puntos</h3>
+              <p id="alignInstructions" style="margin: 0 0 16px 0; font-size: 13px; color: var(--text-muted);">Haz click en el 1º punto del modelo de Referencia</p>
+              <button id="btnCancelAlign" style="padding: 6px 16px; background: #cc3333; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px;">Cancelar</button>
+            </div>
+    
+            <div class="rightSidebar" id="rightSidebar">
+              <div class="rightTools card" id="rightTools">
+                <div class="rtTitle">CÁMARA</div>
+                <button class="rtBtn" id="viewOclusal" title="Oclusal">
+                  <svg class="rtIcon" viewBox="0 0 24 24" fill="none"><path d="M4.5 13c0-4.5 3.5-8 7.5-8s7.5 3.5 7.5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 13c0-3.6 2.7-6.5 6-6.5s6 2.9 6 6.5" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-linecap="round"/><path d="M7 10h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+                </button>
+                <button class="rtBtn" id="viewFrontal" title="Frontal">
+                  <svg class="rtIcon" viewBox="0 0 24 24" fill="none"><path d="M4.5 14c0-4.5 3.5-8 7.5-8s7.5 3.5 7.5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.2 14c0-3.7 2.6-6.7 5.8-6.7s5.8 3 5.8 6.7" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-linecap="round"/><path d="M12 8.2v8.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+                </button>
+                <button class="rtBtn" id="viewLatD" title="Lateral derecha">
+                  <svg class="rtIcon" viewBox="0 0 24 24" fill="none"><path d="M4.5 14c0-4.5 3.5-8 7.5-8s7.5 3.5 7.5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.2 14c0-3.7 2.6-6.7 5.8-6.7s5.8 3 5.8 6.7" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-linecap="round"/><path d="M17.2 9.2l2.2 2.2-2.2 2.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.2 11.4H13.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </button>
+                <button class="rtBtn" id="viewLatI" title="Lateral izquierda">
+                  <svg class="rtIcon" viewBox="0 0 24 24" fill="none"><path d="M4.5 14c0-4.5 3.5-8 7.5-8s7.5 3.5 7.5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6.2 14c0-3.7 2.6-6.7 5.8-6.7s5.8 3 5.8 6.7" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-linecap="round"/><path d="M6.8 9.2L4.6 11.4l2.2 2.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.8 11.4h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+                </button>
+                <button class="rtBtn" id="viewInferior" title="Inferior">
+                  <svg class="rtIcon" viewBox="0 0 24 24" fill="none"><path d="M4.5 11c0 4.5 3.5 8 7.5 8s7.5-3.5 7.5-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 11c0 3.6 2.7 6.5 6 6.5s6-2.9 6-6.5" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-linecap="round"/><path d="M7 14h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+    
+              <div class="measureTools card" id="measureTools">
+                <div class="rtTitle">MEDIDAS</div>
+                <button class="rtBtn outline" id="btnMeasure" title="Regla 3D">📐 Medir</button>
+                <button class="rtBtn outline ghost" id="btnClearMeasures">Limpiar</button>
+                <div class="measureHint" id="measureHint">Doble-Click: 2 Ptos</div>
+                <div class="measureList" id="measureList"></div>
+              </div>
+            </div>
+    
+            <canvas id="canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
