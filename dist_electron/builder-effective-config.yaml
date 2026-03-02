@@ -1,0 +1,15 @@
+directories:
+  output: dist_electron
+  buildResources: build
+appId: com.lumix.dental
+productName: Lumix3D
+win:
+  target: nsis
+files:
+  - filter:
+      - dist/**/*
+      - electron-main.js
+      - package.json
+extraMetadata:
+  main: electron-main.js
+electronVersion: 28.3.3
